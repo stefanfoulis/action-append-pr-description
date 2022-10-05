@@ -36,14 +36,19 @@ async function main() {
     return 1;
   }
 
-  const { body } = data;
+  let { body } = data;
+
+  if (!body) {
+    core.info('Pull request has no description, setting it to an empty string');
+    body = '';
+  }
 
   if (body.includes(url)) {
     core.info('Decription already includes deployed url');
     return 0;
   }
 
-  const updatedBody = `${body} \n\n ----- \nDeployed to: ${url}`;
+  const updatedBody = `${body}\n${url}`;
 
   const updateResponse = await octokit
     .request('PATCH /repos/{owner}/{repo}/pulls/{pull_number}', {
